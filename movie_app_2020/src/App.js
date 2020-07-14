@@ -1,38 +1,40 @@
 import React from 'react';
 import Potato from './Potato'
 import PropTypes from "prop-types";
-class App extends React.Component{
-  constructor(props){
-    super(props)
-    console.log("CONSTRUCTOR");
-  }
+import Axios from 'axios';
+import Movie from "./Movie"
+class App extends React.Component {
   state = {
-    count : 0
+    isLoading: true,
+    movie: []
   }
-  add =()=> {
-    this.setState(current=>({count:current.count+1}));
+  getMovie = async () => {
+
+    const Movie = await Axios.get("https://yts-proxy.now.sh/list_movies.json");
+    const {
+      movies
+    } = Movie.data.data
+    console.log(movies);
+    this.setState({ movie: movies, isLoading: false })
 
   }
-  minus=()=>{
-    this.setState(current=>({count:current.count-1}));
-
+  componentDidMount() {
+    this.getMovie();
   }
-  componentDidMount(){
-    console.log("component DID MOUNT")
-  }
-  componentDidUpdate(){
-    console.log("component DID UPDATE")
-  }
-  render(){
-    console.log("render");
-
+  render() {
+    const { isLoading, movie } = this.state;//무비 가져오는거 중요.
     return (
-      <>
-        <h1> JUNZZI APP </h1>
-        <h2> {this.state.count}</h2>
-        <button onClick={this.add}>add</button>
-        <button onClick={this.minus}>minus</button>
-      </>
+      <div>
+        {isLoading ? "Loading" : movie.map(
+          each => {
+            return <Movie
+              key={each.id}
+              id={each.id}
+              title={each.title}
+              summary={each.summary} />;/// <MOVIE ID<<프로퍼티 이므로 자바스크립트 코드가 아님 = {JAVASCRIPT 변수}/>
+          }
+        )}
+      </div>
     );
   }
 }
